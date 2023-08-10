@@ -1,6 +1,7 @@
 import express from "express";
 import { config } from "dotenv";
 import expressWs from "express-ws";
+import webSocket, { WebSocket } from 'ws';
 
 config();
 
@@ -8,7 +9,7 @@ const expressApp = express();
 const port = process.env.PORT;
 const { app } = expressWs(expressApp);
 
-const clients: { [id: string]: any } = {};
+const clients: { [id: string]: WebSocket } = {};
 
 
 
@@ -31,7 +32,7 @@ app.ws('/socket', (ws) => {
     const data = JSON.stringify(newMessage);
     for (let userId in clients) {
       let client = clients[userId];
-      if (client.readyState === ws.OPEN) {
+      if (client.readyState === webSocket.OPEN) {
         client.send(data);
       }
 
