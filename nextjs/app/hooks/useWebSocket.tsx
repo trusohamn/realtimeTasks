@@ -2,7 +2,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 const RECONNECT_DELAY = 2000;
 
-export default function WebSocketConnection() {
+export default function useWebSocket() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [message, setMessage] = useState(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,22 +52,5 @@ export default function WebSocketConnection() {
     };
   }, []);
 
-  return (
-    <div>
-      <button
-        onClick={() => {
-          const timestamp = new Date().toISOString();
-          if (socket && socket.readyState === WebSocket.OPEN) {
-            socket?.send(
-              JSON.stringify({ type: "timestamp", value: timestamp })
-            );
-          } else {
-            console.log("closed");
-          }
-        }}
-      >
-        WebSocket try
-      </button>
-    </div>
-  );
+  return { sendMessage: socket?.send, message };
 }
