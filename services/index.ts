@@ -8,17 +8,40 @@ const expressApp = express();
 const port = process.env.PORT;
 const { app } = expressWs(expressApp);
 
+const clients: { [id: string]: any } = {};
+
+
+
 app.get("/", (req, res) => {
   res.send("Hello");
 });
 
-app.ws('/socket', function (ws, req) {
-  ws.on('message', function (msg) {
+app.ws('/socket', (ws) => {
+
+
+  const userId = (new Date()).getTime()
+  console.log(`Recieved a new connection.`, userId);
+
+  clients[userId] = ws;
+
+  ws.on('message', (msg) => {
     console.log({ msg })
+    const newMessage = { ...JSON.parse((msg as unknown as string)), server: new Date().toISOString(), fromClient: userId }
 
+    const data = JSON.stringify(newMessage);
+    for (let userId in clients) {
+      let client = clients[userId];
+      if (client.readyState === ws.OPEN) {
+        client.send(data);
+      }
 
-    ws.send(JSON.stringify({ ...JSON.parse((msg as unknown as string)), server: new Date().toISOString() }));
+    };
   });
+
+  ws.on('close', () => {
+    console.log(`${userId} disconnected.`);
+    delete clients[userId];
+  })
 
 });
 
