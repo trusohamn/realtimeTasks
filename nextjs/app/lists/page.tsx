@@ -9,20 +9,15 @@ function Lists() {
 
   useEffect(() => {
     // get the user lists
-    const dummyLists = [
-      { id: 1, name: "Groceries" },
-      { id: 2, name: "Work Tasks" },
-    ];
+    const dummyLists = [{ id: 1 }, { id: 2 }];
     setLists(dummyLists);
   }, []);
 
   return (
     <div>
-      <h1>Your Lists</h1>
       <div>
         {lists.map((list: any) => (
           <div key={list.id} style={{ padding: 20 }}>
-            {list.name}
             <ListDetails listId={list.id} />
           </div>
         ))}
