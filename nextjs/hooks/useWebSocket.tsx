@@ -70,8 +70,8 @@ export function useWebSocket() {
 }
 
 interface WebSocketContextValue {
-  sendMessage?: (data: any) => void;
-  message: string | null;
+  sendMessage?: (data: string) => void;
+  message: object | null;
 }
 
 const WebSocketContext = createContext<WebSocketContextValue>({

@@ -1,50 +1,80 @@
 import { useWebSocketContext } from "@/hooks/useWebSocket";
+import { v4 as uuid } from "uuid";
 import { FormEvent, useEffect, useState } from "react";
 
+type Task = {
+  id: string;
+  text: string;
+};
+
+type Message = {
+  type: string;
+  data: { task: Task };
+  listId: string;
+  username: string;
+};
+
 export default function ListDetails({ listId }: { listId: string }) {
-  const [tasks, setTasks] = useState<any>([]);
-  const [newTask, setNewTask] = useState("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTaskText, setNewTaskText] = useState("");
   const { message, sendMessage } = useWebSocketContext();
+
+  useEffect(() => {
+    const dummyTasks = [
+      { id: "1", text: "Buy milk" },
+      { id: "2", text: "Finish report" },
+    ];
+    setTasks(dummyTasks);
+  }, [listId]);
+
+  useEffect(() => {
+    if (message) {
+      const receivedMessage = message as Message;
+      if (
+        receivedMessage.type === "NEW_TASK" &&
+        receivedMessage.listId === listId
+      ) {
+        const receivedTask = receivedMessage.data.task;
+
+        setTasks((prevTasks) => [...prevTasks, receivedTask]);
+      }
+    }
+  }, [listId, message]);
 
   const handleTaskSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (newTask.trim() === "") return;
+    if (newTaskText.trim() === "") return;
     const username = localStorage.getItem("username") ?? "unknown";
+    const taskId = uuid();
 
-    const task = {
-      type: "task",
-      text: newTask,
+    const message: Message = {
+      type: "NEW_TASK",
+      data: {
+        task: { id: taskId, text: newTaskText },
+      },
       listId,
       username,
     };
 
-    sendMessage?.(JSON.stringify(task));
+    sendMessage?.(JSON.stringify(message));
 
-    setNewTask("");
+    setNewTaskText("");
   };
-
-  useEffect(() => {
-    const dummyTasks = [
-      { id: 1, name: "Buy milk" },
-      { id: 2, name: "Finish report" },
-    ];
-    setTasks(dummyTasks);
-  }, [listId]);
 
   return (
     <div>
       <h1>List Details</h1>
       <h2>List ID: {listId}</h2>
       <ul>
-        {tasks.map((task: any) => (
-          <li key={task.id}>{task.name}</li>
+        {tasks.map((task: Task) => (
+          <li key={task.id}>{task.text}</li>
         ))}
       </ul>
       <form onSubmit={handleTaskSubmit}>
         <input
           type="text"
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
+          value={newTaskText}
+          onChange={(e) => setNewTaskText(e.target.value)}
           placeholder="Add a new task..."
         />
         <button type="submit"> +</button>
