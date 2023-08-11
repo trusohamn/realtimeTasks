@@ -1,8 +1,17 @@
 "use client";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+  createContext,
+  useContext,
+  ReactNode,
+} from "react";
 const RECONNECT_DELAY = 2000;
 
-export default function useWebSocket() {
+export function useWebSocket() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [message, setMessage] = useState(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,5 +61,35 @@ export default function useWebSocket() {
     };
   }, []);
 
-  return { sendMessage: socket?.send, message };
+  return {
+    sendMessage: (message: string) => {
+      socket?.send(message);
+    },
+    message,
+  };
+}
+
+interface WebSocketContextValue {
+  sendMessage?: (data: any) => void;
+  message: string | null;
+}
+
+const WebSocketContext = createContext<WebSocketContextValue>({
+  message: null,
+});
+
+export function WebSocketProvider({ children }: { children: ReactNode }) {
+  const { message, sendMessage } = useWebSocket();
+
+  const value = { message, sendMessage };
+
+  return (
+    <WebSocketContext.Provider value={value}>
+      {children}
+    </WebSocketContext.Provider>
+  );
+}
+
+export function useWebSocketContext() {
+  return useContext(WebSocketContext);
 }

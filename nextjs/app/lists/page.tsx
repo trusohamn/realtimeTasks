@@ -1,18 +1,40 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import ListDetails from "./ListDetails";
+import { WebSocketProvider, useWebSocketContext } from "@/hooks/useWebSocket";
 
-const ListsPage = () => {
-  const router = useRouter();
+function Lists() {
+  const [lists, setLists] = useState<any>([]);
+  const { message, sendMessage } = useWebSocketContext();
 
-  // Redirect to the first list's details if no list is selected
-  // TODO: need to get the list of lists first
-  router.push(`/lists/1`);
+  useEffect(() => {
+    // get the user lists
+    const dummyLists = [
+      { id: 1, name: "Groceries" },
+      { id: 2, name: "Work Tasks" },
+    ];
+    setLists(dummyLists);
+  }, []);
 
   return (
-    <div className="flex">
-      <div className="w-3/4"></div>
+    <div>
+      <h1>Your Lists</h1>
+      <div>
+        {lists.map((list: any) => (
+          <div key={list.id} style={{ padding: 20 }}>
+            {list.name}
+            <ListDetails listId={list.id} />
+          </div>
+        ))}
+      </div>
     </div>
   );
-};
+}
 
-export default ListsPage;
+const ListsWithWebSocket = () => (
+  <WebSocketProvider>
+    <Lists />
+  </WebSocketProvider>
+);
+
+export default ListsWithWebSocket;

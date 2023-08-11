@@ -1,7 +1,27 @@
-import { useEffect, useState } from "react";
+import { useWebSocketContext } from "@/hooks/useWebSocket";
+import { FormEvent, useEffect, useState } from "react";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<any>([]);
+  const [newTask, setNewTask] = useState("");
+  const { message, sendMessage } = useWebSocketContext();
+
+  const handleTaskSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (newTask.trim() === "") return;
+    const username = localStorage.getItem("username") ?? "unknown";
+
+    const task = {
+      type: "task",
+      text: newTask,
+      listId,
+      username,
+    };
+
+    sendMessage?.(JSON.stringify(task));
+
+    setNewTask("");
+  };
 
   useEffect(() => {
     const dummyTasks = [
@@ -20,6 +40,15 @@ export default function ListDetails({ listId }: { listId: string }) {
           <li key={task.id}>{task.name}</li>
         ))}
       </ul>
+      <form onSubmit={handleTaskSubmit}>
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="Add a new task..."
+        />
+        <button type="submit"> +</button>
+      </form>
     </div>
   );
 }
