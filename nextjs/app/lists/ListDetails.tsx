@@ -16,7 +16,7 @@ type Task = {
 };
 
 type Message = {
-  type: string;
+  type: "NEW_TASK";
   data: { task: Task };
   listId: string;
   username: string;
