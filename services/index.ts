@@ -16,11 +16,12 @@ const port = process.env.PORT;
 const expressApp = express();
 const { app } = expressWs(expressApp);
 
+// TODO setup switch for prod
 const corsOptions = {
   origin: 'http://localhost:3000',
 }
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(logRequest)
 app.options('*', cors())

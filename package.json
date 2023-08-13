@@ -1,0 +1,14 @@
+{
+  "name": "trusohamn-realtime",
+  "version": "1.0.0",
+  "author": "Marta Trusohamn <marta.trusohamn@gmail.com>",
+  "devDependencies": {
+    "eslint": "^8.47.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.1"
+  },
+  "scripts": {
+    "lint": "eslint ./",
+    "heroku": "git subtree push --prefix services heroku master"
+  }
+}

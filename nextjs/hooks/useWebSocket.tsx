@@ -1,4 +1,5 @@
 "use client";
+import { wsService } from "@/constants";
 import {
   Dispatch,
   SetStateAction,
@@ -31,7 +32,7 @@ export function useWebSocket() {
       userId: string
     ) {
       const socket = new WebSocket(
-        `ws://localhost:8000/socket?userid=${encodeURIComponent(userId)}`
+        `${wsService}?userid=${encodeURIComponent(userId)}`
       );
 
       socket.onopen = () => {
@@ -63,13 +64,11 @@ export function useWebSocket() {
     if (userId) {
       newSocket = setupWebSocket(setMessage, userId);
       setSocket(newSocket);
-    } else {
-      throw new Error("no userid");
     }
 
     return () => {
       isMounted = false;
-      newSocket.close();
+      newSocket?.close();
       if (reconnectTimeoutRef.current !== null) {
         clearTimeout(reconnectTimeoutRef.current);
       }

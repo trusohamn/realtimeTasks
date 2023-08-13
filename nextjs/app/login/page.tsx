@@ -1,4 +1,5 @@
 "use client";
+import { apiService } from "@/constants";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
@@ -10,7 +11,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:8000/api/users", {
+      const response = await fetch(apiService + "/users", {
         method: "POST",
         headers: {
           Accept: "application/json",

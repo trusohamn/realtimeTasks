@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { apiService } from "@/constants";
 import { Label } from "@radix-ui/react-label";
 import { FormEvent, useState } from "react";
 
@@ -22,17 +23,14 @@ export function Share({ listId }: { listId: string }) {
     if (!userId) throw new Error("no userId");
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/lists/${listId}/share`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "user-id": userId,
-          },
-          body: JSON.stringify({ username: shareWith }),
-        }
-      );
+      const response = await fetch(`${apiService}/lists/${listId}/share`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "user-id": userId,
+        },
+        body: JSON.stringify({ username: shareWith }),
+      });
 
       if (response.ok) {
         setDialogOpen(false);

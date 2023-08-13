@@ -5,6 +5,7 @@ import { WebSocketProvider, useWebSocketContext } from "@/hooks/useWebSocket";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { MediumTitle } from "@/components/ui/text/title";
+import { apiService } from "@/constants";
 
 type MessageNewList = {
   type: "NEW_LIST";
@@ -29,7 +30,7 @@ function Lists() {
     const userId = localStorage?.getItem("userid");
     if (!userId) throw new Error("no userId");
 
-    await fetch("http://localhost:8000/api/lists", {
+    await fetch(apiService + "/lists", {
       method: "POST",
       headers: {
         Accept: "application/json",
