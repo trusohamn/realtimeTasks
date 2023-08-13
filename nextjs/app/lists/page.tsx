@@ -6,16 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { MediumTitle } from "@/components/ui/text/title";
 import { apiService } from "@/constants";
-
-type MessageNewList = {
-  type: "NEW_LIST";
-  data: { list: { name: string; listId: string } };
-  username: string;
-};
-
-type List = {
-  listId: string;
-};
+import { List, MessageNewList } from "./types";
 
 function Lists() {
   const [lists, setLists] = useState<List[]>([]);

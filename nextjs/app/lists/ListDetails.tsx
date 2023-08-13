@@ -10,18 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Share } from "./Share";
-
-type Task = {
-  id: string;
-  text: string;
-};
-
-type Message = {
-  type: "NEW_TASK";
-  data: { task: Task };
-  listId: string;
-  username: string;
-};
+import { MessageNewTask, Task } from "./types";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -30,17 +19,8 @@ export default function ListDetails({ listId }: { listId: string }) {
   const { message, sendMessage } = useWebSocketContext();
 
   useEffect(() => {
-    const dummyTasks = [
-      { id: "1", text: "Buy milk" },
-      { id: "2", text: "Finish report" },
-    ];
-    setTasks(dummyTasks);
-    setListName("ListName");
-  }, [listId]);
-
-  useEffect(() => {
     if (message) {
-      const receivedMessage = message as Message;
+      const receivedMessage = message as MessageNewTask;
       if (
         receivedMessage.type === "NEW_TASK" &&
         receivedMessage.listId === listId
@@ -58,7 +38,7 @@ export default function ListDetails({ listId }: { listId: string }) {
     const username = localStorage.getItem("username") ?? "unknown";
     const taskId = uuid();
 
-    const message: Message = {
+    const message: MessageNewTask = {
       type: "NEW_TASK",
       data: {
         task: { id: taskId, text: newTaskText },
