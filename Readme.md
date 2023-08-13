@@ -8,3 +8,5 @@ user stories:
 
 - todos will be persisted so that important information is
   not lost when server restarts - after simple swap to managed db it would be persisted
+
+[try it out!](https://trusohamn-realtime-tasks.vercel.app/)
