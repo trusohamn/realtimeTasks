@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MediumTitle } from "@/components/ui/text/title";
@@ -53,6 +54,14 @@ export default function Login() {
             <Button type="submit">Login</Button>
           </div>
         </form>
+        <div className="p-10" />
+        <Card>
+          <CardContent>
+            <CardHeader>
+              Try out one of demo username: marta, ana, or create your own
+            </CardHeader>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
