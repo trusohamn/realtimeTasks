@@ -60,7 +60,7 @@ function Lists() {
   }, [message, lists]);
 
   return (
-    <div style={{ padding: 40, maxWidth: 600 }}>
+    <div className="w-full max-w-md py-20">
       <MediumTitle>User: {username}</MediumTitle>
       <div style={{ padding: 20 }} />
       <Card style={{ backgroundColor: "lightgrey" }}>

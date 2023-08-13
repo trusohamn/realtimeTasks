@@ -1,4 +1,8 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { MediumTitle } from "@/components/ui/text/title";
 import { apiService } from "@/constants";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -31,17 +35,25 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className="flex items-center justify-center h-screen">
+      <div className="w-full max-w-md">
+        <MediumTitle>Welcome to Rapid Lists</MediumTitle>
+
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="username" className="text-right">
+              Username
+            </Label>
+            <Input
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="col-span-3"
+            />
+            <Button type="submit">Login</Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
