@@ -1,5 +1,5 @@
 import express from 'express';
-import { associateListWithUser, createList, getUserByUsername, getUsersListIds } from '../db.js';
+import { associateListWithUser, createList, getListDetails, getUserByUsername, getUsersListIds } from '../db.js';
 import ajvModule from 'ajv';
 import { extractUserId } from '../middlewares.js';
 import { broadcastMessageToUser } from '../ws.js';
@@ -57,7 +57,7 @@ router.post('/lists/:listId/share', extractUserId, async (req, res) => {
         if (!userId) throw new Error('no userid')
         const userLists = await getUsersListIds(userId);
 
-        if (!userLists.find(list => list.id !== listId))
+        if (!userLists.find(list => list.listId !== listId))
             return res.status(404).json({ error: 'List not found.' });
 
         const sharedUser = await getUserByUsername(username);
@@ -78,6 +78,16 @@ router.post('/lists/:listId/share', extractUserId, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while sharing the list.' });
     }
 });
+
+router.get('/lists/:listId', async (req, res) => {
+    // TODO: check if the list belongs to the user
+
+    const { listId } = req.params
+
+    const list = await getListDetails(listId as string)
+    res.status(200).json(list)
+})
+
 
 export default router;
 

@@ -51,7 +51,7 @@ function Lists() {
         if (!listExists) setLists((prevLists) => [...prevLists, receivedList]);
       }
     }
-  }, [message]);
+  }, [message, lists]);
 
   return (
     <div style={{ padding: 40 }}>

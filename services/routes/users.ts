@@ -29,7 +29,7 @@ router.post('/users', async (req, res) => {
 
         const { username } = req.body;
 
-        // TODO: check if existing user
+        // TODO: check if existing user, if it does, return it's id
         const newUser = await createUser(username);
 
         res.status(201).json(newUser);

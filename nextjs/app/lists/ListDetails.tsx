@@ -11,12 +11,25 @@ import {
 } from "@/components/ui/card";
 import { Share } from "./Share";
 import { MessageNewTask, Task } from "./types";
+import { apiService } from "@/constants";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [listName, setListName] = useState<string>("");
   const [newTaskText, setNewTaskText] = useState("");
   const { message, sendMessage } = useWebSocketContext();
+
+  useEffect(() => {
+    fetch(`${apiService}/lists/${listId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setTasks(data.tasks);
+        setListName(data.name);
+      })
+      .catch((error) => {
+        console.error("Error fetching list details:", error);
+      });
+  }, [listId]);
 
   useEffect(() => {
     if (message) {
