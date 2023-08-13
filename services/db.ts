@@ -29,6 +29,23 @@ db.run(`
   )
 `);
 
+db.run(`
+  CREATE TABLE IF NOT EXISTS tasks (
+    id TEXT PRIMARY KEY,
+    text TEXT NOT NULL
+  )
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS list_tasks (
+    listId TEXT,
+    taskId TEXT,
+    FOREIGN KEY (listId) REFERENCES lists (id),
+    FOREIGN KEY (taskId) REFERENCES tasks (id),
+    PRIMARY KEY (listId, taskId)
+  )
+`);
+
 export async function createUser(username: string) {
     return new Promise((resolve, reject) => {
         const id = randomUUID();
@@ -53,7 +70,7 @@ export async function createUser(username: string) {
 
 
 export async function getUsersListIds(userId: string) {
-    return new Promise<List[]>((resolve, reject) => {
+    return new Promise<{ listId: string }[]>((resolve, reject) => {
         db.all(
             'SELECT listId FROM user_lists WHERE userId = ?',
             [userId],
@@ -153,7 +170,96 @@ export async function getUserByUsername(username: string) {
     });
 }
 
+type Task = { id: string, text: string }
+export async function getListDetails(listId: string) {
+    return new Promise<{ id: string; name: string; tasks: Task[] } | null>((resolve, reject) => {
+        db.get('SELECT * FROM lists WHERE id = ?', [listId], async (err: any, row: any) => {
+            if (err) {
+                console.log(err);
+                reject(new Error('Error retrieving list details'));
+                return;
+            }
 
+            if (!row) {
+                resolve(null);
+                return;
+            }
+
+            const list: { id: string; name: string } = {
+                id: row.id,
+                name: row.name,
+            };
+
+            const tasks = await getTasksByListId(listId);
+
+            resolve({ ...list, tasks });
+        });
+    });
+}
+
+
+export async function createTask(listId: string, text: string) {
+    return new Promise<Task>((resolve, reject) => {
+        const taskId = randomUUID();
+        const query = 'INSERT INTO tasks (id, text) VALUES (?, ?)';
+
+        db.run(query, [taskId, text], async (err) => {
+            if (err) {
+                console.error(err);
+                reject(new Error('Error creating task'));
+                return;
+            }
+
+            await associateTaskWithList(listId, taskId);
+
+            const newTask = {
+                id: taskId,
+                text,
+            };
+
+            resolve(newTask);
+        });
+    });
+}
+
+export async function associateTaskWithList(listId: string, taskId: string) {
+    return new Promise<void>((resolve, reject) => {
+        const query = 'INSERT INTO list_tasks (listId, taskId) VALUES (?, ?)';
+
+        db.run(query, [listId, taskId], (err) => {
+            if (err) {
+                console.error(err);
+                reject(new Error('Error associating task with list'));
+                return;
+            }
+
+            resolve();
+        });
+    });
+}
+
+export async function getTasksByListId(listId: string) {
+    return new Promise<Task[]>((resolve, reject) => {
+        db.all(
+            'SELECT tasks.id, tasks.text FROM tasks JOIN list_tasks ON tasks.id = list_tasks.taskId WHERE list_tasks.listId = ?',
+            [listId],
+            (err: any, rows: any[]) => {
+                if (err) {
+                    console.log(err);
+                    reject(new Error('Error retrieving tasks'));
+                    return;
+                }
+
+                const tasks = rows.map((row: any) => ({
+                    id: row.id,
+                    text: row.text,
+                }));
+
+                resolve(tasks);
+            }
+        );
+    });
+}
 
 
 export default db;
