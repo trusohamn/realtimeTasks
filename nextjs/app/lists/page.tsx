@@ -13,6 +13,7 @@ import {
 import { MediumTitle } from "@/components/ui/text/title";
 import { apiService } from "@/constants";
 import { List, MessageNewList } from "./types";
+import { redirect } from "next/navigation";
 
 function Lists() {
   const [lists, setLists] = useState<List[]>([]);
@@ -41,6 +42,8 @@ function Lists() {
   };
 
   useEffect(() => {
+    const userId = localStorage?.getItem("userid");
+    if (!userId) redirect("/login");
     const newUserName = localStorage?.getItem("username");
     setUsername(newUserName);
   }, []);
