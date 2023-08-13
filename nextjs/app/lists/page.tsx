@@ -18,7 +18,7 @@ type List = {
 
 function Lists() {
   const [lists, setLists] = useState<List[]>([]);
-  const { message, sendMessage } = useWebSocketContext();
+  const { message } = useWebSocketContext();
   const [newListName, setNewListName] = useState("");
   const username = localStorage?.getItem("username");
 
@@ -48,7 +48,10 @@ function Lists() {
       if (receivedMessage.type === "NEW_LIST") {
         const receivedList = receivedMessage.data.list;
 
-        setLists((prevLists) => [...prevLists, receivedList]);
+        const listExists = lists.some(
+          (list) => list.listId === receivedList.listId
+        );
+        if (!listExists) setLists((prevLists) => [...prevLists, receivedList]);
       }
     }
   }, [message]);
