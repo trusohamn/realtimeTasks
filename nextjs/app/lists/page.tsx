@@ -4,6 +4,7 @@ import ListDetails from "./ListDetails";
 import { WebSocketProvider, useWebSocketContext } from "@/hooks/useWebSocket";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { MediumTitle } from "@/components/ui/text/title";
 
 type MessageNewList = {
   type: "NEW_LIST";
@@ -19,12 +20,13 @@ function Lists() {
   const [lists, setLists] = useState<List[]>([]);
   const { message, sendMessage } = useWebSocketContext();
   const [newListName, setNewListName] = useState("");
+  const username = localStorage?.getItem("username");
 
   const handleCreateList = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     newListName.trim();
     if (newListName === "") return;
-    const userId = localStorage.getItem("userid");
+    const userId = localStorage?.getItem("userid");
     if (!userId) throw new Error("no userId");
 
     await fetch("http://localhost:8000/api/lists", {
@@ -53,6 +55,7 @@ function Lists() {
 
   return (
     <div style={{ padding: 40 }}>
+      <MediumTitle>User: {username}</MediumTitle>
       <Card>
         <form onSubmit={handleCreateList}>
           <CardContent>
