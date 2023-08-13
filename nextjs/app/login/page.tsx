@@ -20,7 +20,7 @@ export default function Login() {
       }).then((data) => data.json());
 
       console.log(response);
-      localStorage.setItem("userId", response.id);
+      localStorage.setItem("userid", response.id);
       localStorage.setItem("username", response.username);
 
       router.push("/lists");

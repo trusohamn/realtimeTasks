@@ -20,33 +20,24 @@ function Lists() {
   const { message, sendMessage } = useWebSocketContext();
   const [newListName, setNewListName] = useState("");
 
-  useEffect(() => {
-    // get the user lists
-    const dummyLists = [{ id: "1" }, { id: "2" }];
-    setLists(dummyLists);
-  }, []);
-
-  const handleCreateList = (e: FormEvent<HTMLFormElement>) => {
+  const handleCreateList = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     newListName.trim();
     if (newListName === "") return;
+    const userId = localStorage.getItem("userid");
+    if (!userId) throw new Error("no userId");
 
-    const newList = {
-      id: Date.now().toString(),
-      name: newListName,
-    };
-    const username = localStorage.getItem("username") ?? "unknown";
-
-    const message: MessageNewList = {
-      type: "NEW_LIST",
-      data: {
-        list: newList,
+    await fetch("http://localhost:8000/api/lists", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "user-id": userId,
       },
-      username,
-    };
+      body: JSON.stringify({ name: newListName }),
+    }).then((data) => data.json());
 
     setNewListName("");
-    sendMessage?.(JSON.stringify(message));
   };
 
   useEffect(() => {

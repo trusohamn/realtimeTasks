@@ -16,8 +16,7 @@ export function useWebSocket() {
   const [message, setMessage] = useState(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  console.log("Received message:", message);
-  const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userid");
 
   useEffect(() => {
     let isMounted = true;
