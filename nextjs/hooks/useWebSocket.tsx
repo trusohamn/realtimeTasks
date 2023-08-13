@@ -17,11 +17,19 @@ export function useWebSocket() {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   console.log("Received message:", message);
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     let isMounted = true;
-    function setupWebSocket(setMessage: Dispatch<SetStateAction<null>>) {
-      const socket = new WebSocket("ws://localhost:8000/socket");
+    let newSocket: WebSocket;
+
+    function setupWebSocket(
+      setMessage: Dispatch<SetStateAction<null>>,
+      userId: string
+    ) {
+      const socket = new WebSocket(
+        `ws://localhost:8000/socket?userid=${encodeURIComponent(userId)}`
+      );
 
       socket.onopen = () => {
         console.log("WebSocket connection opened");
@@ -40,7 +48,7 @@ export function useWebSocket() {
         console.log("WebSocket connection closed");
         if (event.code !== 1000 && isMounted) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            const newSocket = setupWebSocket(setMessage);
+            newSocket = setupWebSocket(setMessage, userId);
             if (isMounted) setSocket(newSocket);
           }, RECONNECT_DELAY);
         }
@@ -49,8 +57,12 @@ export function useWebSocket() {
       return socket;
     }
 
-    const newSocket = setupWebSocket(setMessage);
-    setSocket(newSocket);
+    if (userId) {
+      newSocket = setupWebSocket(setMessage, userId);
+      setSocket(newSocket);
+    } else {
+      throw new Error("no userid");
+    }
 
     return () => {
       isMounted = false;
@@ -59,7 +71,7 @@ export function useWebSocket() {
         clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, []);
+  }, [userId]);
 
   return {
     sendMessage: (message: string) => {

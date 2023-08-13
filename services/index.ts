@@ -2,28 +2,46 @@ import express from "express";
 import { config } from "dotenv";
 import expressWs from "express-ws";
 import webSocket, { WebSocket } from 'ws';
+import usersRoute from './routes/users.js';
+import cors from "cors";
+import bodyParser from "body-parser";
+
+import { getUsersList } from './db.js';
+import { extractUserId, logRequest } from "./middlewares.js";
 
 config();
+const port = process.env.PORT;
 
 const expressApp = express();
-const port = process.env.PORT;
 const { app } = expressWs(expressApp);
 
 const clients: { [id: string]: WebSocket } = {};
 
+const corsOptions = {
+  origin: 'http://localhost:3000',
+}
 
+app.use(cors(corsOptions));
+app.use(bodyParser.json());
+app.use(logRequest)
+app.options('*', cors())
 
-app.get("/", (req, res) => {
-  res.send("Hello");
+app.get("/ping", (req, res) => {
+  res.send("pong");
 });
 
-app.ws('/socket', (ws) => {
+app.use('/api', usersRoute);
 
+app.ws('/socket', async (ws, req) => {
+  const userId = req.query['userid'] as string;
 
-  const userId = (new Date()).getTime()
-  console.log(`Recieved a new connection.`, userId);
+  if (!userId) ws.close(4000, 'UserId missing');
+  console.log(`Recieved a new connection from`, userId);
 
   clients[userId] = ws;
+
+  const userLists = await getUsersList(userId)
+  console.log({ userLists })
 
   ws.on('message', (msg) => {
     console.log({ msg })
@@ -46,7 +64,11 @@ app.ws('/socket', (ws) => {
 
 });
 
+app.post('/api/lists', extractUserId, (req, res) => {
+  const userId = req.userId;
+  // IN PROGRESS
 
+});
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
