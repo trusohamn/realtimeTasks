@@ -3,7 +3,13 @@ import { useState, useEffect, FormEvent } from "react";
 import ListDetails from "./ListDetails";
 import { WebSocketProvider, useWebSocketContext } from "@/hooks/useWebSocket";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { MediumTitle } from "@/components/ui/text/title";
 import { apiService } from "@/constants";
 import { List, MessageNewList } from "./types";
@@ -54,26 +60,31 @@ function Lists() {
   }, [message, lists]);
 
   return (
-    <div style={{ padding: 40 }}>
+    <div style={{ padding: 40, maxWidth: 600 }}>
       <MediumTitle>User: {username}</MediumTitle>
-      <Card>
-        <form onSubmit={handleCreateList}>
-          <CardContent>
-            <input
-              type="text"
-              value={newListName}
-              onChange={(e) => setNewListName(e.target.value)}
-              placeholder="Enter new list name..."
-            />
-          </CardContent>
-          <CardFooter>
-            <Button type="submit">Create List</Button>
-          </CardFooter>
-        </form>
-      </Card>
       <div style={{ padding: 20 }} />
+      <Card style={{ backgroundColor: "lightgrey" }}>
+        <CardContent>
+          <form onSubmit={handleCreateList}>
+            <CardHeader>
+              <CardTitle>Create new list</CardTitle>
+            </CardHeader>
+
+            <CardFooter>
+              <input
+                type="text"
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+                placeholder="Enter new list name..."
+              />
+              <Button type="submit">Create List</Button>
+            </CardFooter>
+          </form>
+        </CardContent>
+      </Card>
+      <div style={{ padding: 50 }} />
       {lists.map((list: List) => (
-        <div key={list.listId}>
+        <div key={list.listId} style={{ padding: 10 }}>
           <ListDetails listId={list.listId} />
         </div>
       ))}

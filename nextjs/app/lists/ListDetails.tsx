@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -73,20 +74,24 @@ export default function ListDetails({ listId }: { listId: string }) {
           <CardDescription>List ID: {listId}</CardDescription>
           <Share listId={listId} />
         </CardHeader>
-        <ul>
-          {tasks.map((task: Task) => (
-            <li key={task.id}>{task.text}</li>
-          ))}
-        </ul>
-        <form onSubmit={handleTaskSubmit}>
-          <input
-            type="text"
-            value={newTaskText}
-            onChange={(e) => setNewTaskText(e.target.value)}
-            placeholder="Add a new task..."
-          />
-          <Button type="submit"> +</Button>
-        </form>
+        <CardContent>
+          <ul>
+            {tasks.map((task: Task) => (
+              <li key={task.id}>{task.text}</li>
+            ))}
+          </ul>
+        </CardContent>
+        <CardFooter>
+          <form onSubmit={handleTaskSubmit}>
+            <input
+              type="text"
+              value={newTaskText}
+              onChange={(e) => setNewTaskText(e.target.value)}
+              placeholder="Add a new task..."
+            />
+            <Button type="submit"> +</Button>
+          </form>
+        </CardFooter>
       </CardContent>
     </Card>
   );
