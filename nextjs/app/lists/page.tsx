@@ -21,7 +21,7 @@ function Lists() {
   const [newListName, setNewListName] = useState("");
   const [username, setUsername] = useState<null | string>(null);
 
-  const { message } = useWebSocketContext();
+  const { subscribe } = useWebSocketContext();
 
   const handleCreateList = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,18 +48,23 @@ function Lists() {
   }, []);
 
   useEffect(() => {
-    if (message) {
+    const handleMessage = (message: object) => {
       const receivedMessage = message as MessageNewList;
       if (receivedMessage.type === "NEW_LIST") {
         const receivedList = receivedMessage.data.list;
-
         const listExists = lists.some(
           (list) => list.listId === receivedList.listId
         );
         if (!listExists) setLists((prevLists) => [...prevLists, receivedList]);
       }
-    }
-  }, [message, lists]);
+    };
+
+    const unsubscribe = subscribe(handleMessage);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribe, lists]);
 
   return (
     <div className="w-full max-w-md py-20">
