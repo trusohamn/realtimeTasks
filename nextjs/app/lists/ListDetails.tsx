@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Share } from "./Share";
 import { MessageNewTask, Task } from "./types";
-import { apiService } from "@/constants";
+import { fetchWithUserId } from "@/utils/api";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,7 +21,7 @@ export default function ListDetails({ listId }: { listId: string }) {
   const { message, sendMessage } = useWebSocketContext();
 
   useEffect(() => {
-    fetch(`${apiService}/lists/${listId}`)
+    fetchWithUserId(`/lists/${listId}`)
       .then((response) => response.json())
       .then((data) => {
         setTasks(data.tasks);

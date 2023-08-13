@@ -8,10 +8,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { apiService } from "@/constants";
 import { Label } from "@radix-ui/react-label";
 import { FormEvent, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { fetchWithUserId } from "@/utils/api";
 
 export function Share({ listId }: { listId: string }) {
   const [shareWith, setShareWith] = useState("");
@@ -20,16 +20,13 @@ export function Share({ listId }: { listId: string }) {
 
   const handleShare = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const userId = localStorage.getItem("userid");
     if (shareWith.trim() === "") return;
-    if (!userId) throw new Error("no userId");
 
     try {
-      const response = await fetch(`${apiService}/lists/${listId}/share`, {
+      const response = await fetchWithUserId(`/lists/${listId}/share`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "user-id": userId,
         },
         body: JSON.stringify({ username: shareWith }),
       });

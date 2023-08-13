@@ -11,30 +11,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MediumTitle } from "@/components/ui/text/title";
-import { apiService } from "@/constants";
 import { List, MessageNewList } from "./types";
 import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
+import { fetchWithUserId } from "@/utils/api";
 
 function Lists() {
   const [lists, setLists] = useState<List[]>([]);
-  const { message } = useWebSocketContext();
   const [newListName, setNewListName] = useState("");
   const [username, setUsername] = useState<null | string>(null);
+
+  const { message } = useWebSocketContext();
 
   const handleCreateList = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     newListName.trim();
     if (newListName === "") return;
-    const userId = localStorage?.getItem("userid");
-    if (!userId) throw new Error("no userId");
 
-    await fetch(apiService + "/lists", {
+    await fetchWithUserId("/lists", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "user-id": userId,
       },
       body: JSON.stringify({ name: newListName }),
     }).then((data) => data.json());
