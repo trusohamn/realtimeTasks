@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MediumTitle } from "@/components/ui/text/title";
-import { List, MessageNewList } from "./types";
+import { List, isMessageNewList } from "./types";
 import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
 import { fetchWithUserId } from "@/utils/api";
@@ -49,9 +49,8 @@ function Lists() {
 
   useEffect(() => {
     const handleMessage = (message: object) => {
-      const receivedMessage = message as MessageNewList;
-      if (receivedMessage.type === "NEW_LIST") {
-        const receivedList = receivedMessage.data.list;
+      if (isMessageNewList(message)) {
+        const receivedList = message.data.list;
         const listExists = lists.some(
           (list) => list.listId === receivedList.listId
         );

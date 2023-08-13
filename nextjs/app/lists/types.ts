@@ -19,3 +19,14 @@ export type MessageNewTask = {
     listId: string;
     username: string;
 };
+
+export function isMessageNewList(message: any): message is MessageNewList {
+    return message && message.type === "NEW_LIST";
+}
+
+export function isMessageNewTask(message: any): message is MessageNewTask {
+    return (
+        message &&
+        message.type === "NEW_TASK"
+    );
+}

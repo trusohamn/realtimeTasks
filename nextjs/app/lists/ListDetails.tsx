@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Share } from "./Share";
-import { MessageNewTask, Task } from "./types";
+import { MessageNewTask, Task, isMessageNewTask } from "./types";
 import { fetchWithUserId } from "@/utils/api";
 
 export default function ListDetails({ listId }: { listId: string }) {
@@ -34,14 +34,12 @@ export default function ListDetails({ listId }: { listId: string }) {
 
   useEffect(() => {
     if (message) {
-      const receivedMessage = message as MessageNewTask;
-      if (
-        receivedMessage.type === "NEW_TASK" &&
-        receivedMessage.listId === listId
-      ) {
-        const receivedTask = receivedMessage.data.task;
+      if (isMessageNewTask(message)) {
+        if (message.listId === listId) {
+          const receivedTask = message.data.task;
 
-        setTasks((prevTasks) => [...prevTasks, receivedTask]);
+          setTasks((prevTasks) => [...prevTasks, receivedTask]);
+        }
       }
     }
   }, [listId, message]);
