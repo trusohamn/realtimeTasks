@@ -6,7 +6,7 @@ import listsRoute from './routes/lists.js';
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import { getUsersByListIds, getUsersListIds } from './db.js';
+import { createTask, getUsersByListIds, getUsersListIds } from './db.js';
 import { logRequest } from "./middlewares.js";
 import { addClient, broadcastMessageToUser, deleteClient } from "./ws.js";
 
@@ -53,14 +53,17 @@ app.ws('/socket', async (ws, req) => {
 
   ws.on('message', async (msg) => {
     const message = JSON.parse((msg as unknown as string))
+    if (message.type === 'NEW_TASK') {
+      const listIdAffectedByMessage = message.listId
+      const usersAffectedByMessage = await getUsersByListIds(listIdAffectedByMessage)
 
-    const listIdAffectedByMessage = message.listId
-    const usersAffectedByMessage = await getUsersByListIds(listIdAffectedByMessage)
 
-    const newMessage = { ...JSON.parse((msg as unknown as string)), server: new Date().toISOString(), fromClient: userId }
+      const newMessage = { ...message, fromClient: userId }
+      usersAffectedByMessage.forEach(({ userId }) => broadcastMessageToUser(userId, newMessage))
+      const { task } = message.data
 
-    usersAffectedByMessage.forEach(({ userId }) => broadcastMessageToUser(userId, newMessage))
-
+      await createTask(listIdAffectedByMessage, task.id, task.text);
+    }
   });
 
 

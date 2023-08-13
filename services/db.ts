@@ -198,9 +198,8 @@ export async function getListDetails(listId: string) {
 }
 
 
-export async function createTask(listId: string, text: string) {
+export async function createTask(listId: string, taskId: string, text: string) {
     return new Promise<Task>((resolve, reject) => {
-        const taskId = randomUUID();
         const query = 'INSERT INTO tasks (id, text) VALUES (?, ?)';
 
         db.run(query, [taskId, text], async (err) => {
