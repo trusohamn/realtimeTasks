@@ -8,7 +8,7 @@ import bodyParser from "body-parser";
 
 import { getUsersList } from './db.js';
 import { logRequest } from "./middlewares.js";
-import { addClient, broadcastMessage, deleteClient } from "./ws.js";
+import { addClient, broadcastMessageToUser, deleteClient } from "./ws.js";
 
 config();
 const port = process.env.PORT;
@@ -35,11 +35,11 @@ app.use('/api', listsRoute);
 app.ws('/socket', async (ws, req) => {
   const userId = req.query['userid'] as string;
 
-  if (!userId) ws.close(4000, 'UserId missing');
+  if (!userId) return ws.close(4000, 'UserId missing');
   console.log(`Recieved a new connection from`, userId);
 
 
-  addClient(ws, userId) // TODO maybe use clientId, not userId, to enable multiple connections from the same user
+  addClient(ws, userId)
   const userLists = await getUsersList(userId)
 
   console.log({ userLists })
@@ -56,14 +56,14 @@ app.ws('/socket', async (ws, req) => {
     console.log({ msg })
     const newMessage = { ...JSON.parse((msg as unknown as string)), server: new Date().toISOString(), fromClient: userId }
 
-    broadcastMessage(newMessage)
+    broadcastMessageToUser(userId, newMessage)
   });
 
 
 
   ws.on('close', () => {
     console.log(`${userId} disconnected.`);
-    deleteClient(userId) // TODO maybe use clientId, not userId
+    deleteClient(ws, userId)
   })
 
 });

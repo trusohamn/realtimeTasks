@@ -2,7 +2,7 @@ import express from 'express';
 import { associateListWithUser, createList, createUser } from '../db.js';
 import ajvModule from 'ajv';
 import { extractUserId } from '../middlewares.js';
-import { broadcastMessage } from '../ws.js';
+import { broadcastMessageToUser } from '../ws.js';
 const Ajv = ajvModule.default;
 const ajv = new Ajv();
 
@@ -25,11 +25,11 @@ const isListDataValid = (data: any): data is { name: string } => {
 
 router.post('/lists', extractUserId, async (req, res) => {
     try {
-        if (!isListDataValid(req.body)) {
+        const userId = req.userId;
+        if (!isListDataValid(req.body) || !userId) {
             return res.status(400).json({ error: 'Invalid input data.' });
         }
 
-        const userId = req.userId;
         const { name } = req.body;
 
         const newList = await createList(name);
@@ -39,7 +39,8 @@ router.post('/lists', extractUserId, async (req, res) => {
             type: 'NEW_LIST',
             data: { list: newList }
         }
-        broadcastMessage(broadcastedMessage)
+
+        broadcastMessageToUser(userId, broadcastedMessage)
         res.status(201).json(newList);
     } catch (error) {
         console.log({ error })
