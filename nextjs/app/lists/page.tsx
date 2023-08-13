@@ -20,7 +20,7 @@ function Lists() {
   const [lists, setLists] = useState<List[]>([]);
   const { message } = useWebSocketContext();
   const [newListName, setNewListName] = useState("");
-  const username = localStorage?.getItem("username");
+  const [username, setUsername] = useState<null | string>(null);
 
   const handleCreateList = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,6 +41,11 @@ function Lists() {
 
     setNewListName("");
   };
+
+  useEffect(() => {
+    const newUserName = localStorage?.getItem("username");
+    setUsername(newUserName);
+  }, []);
 
   useEffect(() => {
     if (message) {

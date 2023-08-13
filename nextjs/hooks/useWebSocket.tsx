@@ -14,9 +14,13 @@ const RECONNECT_DELAY = 2000;
 export function useWebSocket() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [message, setMessage] = useState(null);
+  const [userId, setUserId] = useState<null | string>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const userId = localStorage.getItem("userid");
+  useEffect(() => {
+    const newUserId = localStorage.getItem("userid");
+    setUserId(newUserId);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
