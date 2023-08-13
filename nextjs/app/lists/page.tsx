@@ -14,6 +14,7 @@ import { MediumTitle } from "@/components/ui/text/title";
 import { apiService } from "@/constants";
 import { List, MessageNewList } from "./types";
 import { redirect } from "next/navigation";
+import { Toaster } from "@/components/ui/toaster";
 
 function Lists() {
   const [lists, setLists] = useState<List[]>([]);
@@ -91,6 +92,7 @@ function Lists() {
           <ListDetails listId={list.listId} />
         </div>
       ))}
+      <Toaster />
     </div>
   );
 }

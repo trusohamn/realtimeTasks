@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input";
 import { apiService } from "@/constants";
 import { Label } from "@radix-ui/react-label";
 import { FormEvent, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export function Share({ listId }: { listId: string }) {
   const [shareWith, setShareWith] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleShare = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,11 +36,16 @@ export function Share({ listId }: { listId: string }) {
 
       if (response.ok) {
         setDialogOpen(false);
+        toast({ title: "Success!", description: "shared with " + shareWith });
       } else {
-        // TODO: Handle error
+        if (response.status === 404)
+          toast({
+            title: "Error!",
+            description: "something went wrong, try different username",
+          });
       }
     } catch (error) {
-      // TODO: Handle error
+      toast({ title: "Error!", description: "something went wrong" });
     }
   };
 
