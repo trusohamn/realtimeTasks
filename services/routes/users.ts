@@ -1,5 +1,5 @@
 import express from 'express';
-import { createUser } from '../db.js';
+import { createUser, getUserByUsername } from '../db.js';
 import ajvModule from 'ajv';
 const Ajv = ajvModule.default;
 const ajv = new Ajv();
@@ -29,9 +29,12 @@ router.post('/users', async (req, res) => {
 
         const { username } = req.body;
 
-        // TODO: check if existing user, if it does, return it's id
-        const newUser = await createUser(username);
+        const existingUser = await getUserByUsername(username);
+        if (existingUser) {
+            return res.status(200).json(existingUser);
+        }
 
+        const newUser = await createUser(username);
         res.status(201).json(newUser);
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while creating the user.' });
