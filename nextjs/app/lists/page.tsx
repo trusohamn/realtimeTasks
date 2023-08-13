@@ -8,12 +8,12 @@ import { MediumTitle } from "@/components/ui/text/title";
 
 type MessageNewList = {
   type: "NEW_LIST";
-  data: { list: { name: string; id: string } };
+  data: { list: { name: string; listId: string } };
   username: string;
 };
 
 type List = {
-  id: string;
+  listId: string;
 };
 
 function Lists() {
@@ -72,9 +72,9 @@ function Lists() {
         </form>
       </Card>
       <div style={{ padding: 20 }} />
-      {lists.map((list: any) => (
-        <div key={list.id}>
-          <ListDetails listId={list.id} />
+      {lists.map((list: List) => (
+        <div key={list.listId}>
+          <ListDetails listId={list.listId} />
         </div>
       ))}
     </div>

@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Share } from "./Share";
 
 type Task = {
   id: string;
@@ -77,6 +78,7 @@ export default function ListDetails({ listId }: { listId: string }) {
         <CardHeader>
           <CardTitle>{listName}</CardTitle>
           <CardDescription>List ID: {listId}</CardDescription>
+          <Share listId={listId} />
         </CardHeader>
         <ul>
           {tasks.map((task: Task) => (

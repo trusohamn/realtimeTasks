@@ -6,7 +6,7 @@ import listsRoute from './routes/lists.js';
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import { getUsersList } from './db.js';
+import { getUsersByListIds, getUsersListIds } from './db.js';
 import { logRequest } from "./middlewares.js";
 import { addClient, broadcastMessageToUser, deleteClient } from "./ws.js";
 
@@ -40,9 +40,7 @@ app.ws('/socket', async (ws, req) => {
 
 
   addClient(ws, userId)
-  const userLists = await getUsersList(userId)
-
-  console.log({ userLists })
+  const userLists = await getUsersListIds(userId)
 
   userLists.forEach((list) => {
     const message = {
@@ -52,11 +50,16 @@ app.ws('/socket', async (ws, req) => {
     ws.send(JSON.stringify(message))
   })
 
-  ws.on('message', (msg) => {
-    console.log({ msg })
+  ws.on('message', async (msg) => {
+    const message = JSON.parse((msg as unknown as string))
+
+    const listIdAffectedByMessage = message.listId
+    const usersAffectedByMessage = await getUsersByListIds(listIdAffectedByMessage)
+
     const newMessage = { ...JSON.parse((msg as unknown as string)), server: new Date().toISOString(), fromClient: userId }
 
-    broadcastMessageToUser(userId, newMessage)
+    usersAffectedByMessage.forEach(({ userId }) => broadcastMessageToUser(userId, newMessage))
+
   });
 
 

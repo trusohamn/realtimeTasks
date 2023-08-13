@@ -1,5 +1,5 @@
 import express from 'express';
-import { associateListWithUser, createList, createUser } from '../db.js';
+import { associateListWithUser, createList, getUserByUsername, getUsersListIds } from '../db.js';
 import ajvModule from 'ajv';
 import { extractUserId } from '../middlewares.js';
 import { broadcastMessageToUser } from '../ws.js';
@@ -37,7 +37,7 @@ router.post('/lists', extractUserId, async (req, res) => {
         await associateListWithUser(userId!, newList.id);
         const broadcastedMessage = {
             type: 'NEW_LIST',
-            data: { list: newList }
+            data: { list: { listId: newList.id } }
         }
 
         broadcastMessageToUser(userId, broadcastedMessage)
@@ -47,6 +47,37 @@ router.post('/lists', extractUserId, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the list.' });
     }
 })
+
+router.post('/lists/:listId/share', extractUserId, async (req, res) => {
+    try {
+        const { listId } = req.params;
+        const username = req.body.username
+        const userId = req.userId;
+
+        if (!userId) throw new Error('no userid')
+        const userLists = await getUsersListIds(userId);
+
+        if (!userLists.find(list => list.id !== listId))
+            return res.status(404).json({ error: 'List not found.' });
+
+        const sharedUser = await getUserByUsername(username);
+        if (!sharedUser) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        await associateListWithUser(sharedUser.id, listId);
+
+        const broadcastedMessage = {
+            type: 'NEW_LIST',
+            data: { list: { listId } }
+        }
+        broadcastMessageToUser(sharedUser.id, broadcastedMessage)
+
+        res.status(200).json({ message: 'List shared successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while sharing the list.' });
+    }
+});
 
 export default router;
 

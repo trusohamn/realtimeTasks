@@ -8,7 +8,7 @@ const db = new verbose.Database('test.db');
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
-    username TEXT NOT NULL
+    username TEXT NOT NULL UNIQUE
   )
 `);
 
@@ -50,12 +50,12 @@ export async function createUser(username: string) {
         });
     });
 }
-type List = { id: string, name: string }
 
-export async function getUsersList(userId: string) {
+
+export async function getUsersListIds(userId: string) {
     return new Promise<List[]>((resolve, reject) => {
         db.all(
-            'SELECT lists.id, lists.name FROM lists JOIN user_lists ON lists.id = user_lists.listId WHERE user_lists.userId = ?',
+            'SELECT listId FROM user_lists WHERE userId = ?',
             [userId],
             (err: any, rows: any[]) => {
                 if (err) {
@@ -70,6 +70,26 @@ export async function getUsersList(userId: string) {
     });
 }
 
+export async function getUsersByListIds(listId: string) {
+    return new Promise<{ userId: string }[]>((resolve, reject) => {
+        db.all(
+            'SELECT userId FROM user_lists WHERE listId = ?',
+            [listId],
+            (err: any, rows: any[]) => {
+                if (err) {
+                    console.log(err);
+                    reject(new Error('Error retrieving users'));
+                    return;
+                }
+
+                resolve(rows);
+            }
+        );
+    });
+}
+
+
+type List = { id: string, name: string }
 export async function createList(name: string) {
     return new Promise<List>((resolve, reject) => {
         const listId = randomUUID();
@@ -107,5 +127,33 @@ export async function associateListWithUser(userId: string, listId: string) {
         });
     });
 }
+
+type User = { id: string, username: string }
+export async function getUserByUsername(username: string) {
+    return new Promise<User | null>((resolve, reject) => {
+        db.get('SELECT * FROM users WHERE username = ?', [username], (err: any, row: any) => {
+            if (err) {
+                console.log(err);
+                reject(new Error('Error retrieving user'));
+                return;
+            }
+
+            if (!row) {
+                resolve(null);
+                return;
+            }
+
+            const user: User = {
+                id: row.id,
+                username: row.username,
+            };
+
+            resolve(user);
+        });
+    });
+}
+
+
+
 
 export default db;
