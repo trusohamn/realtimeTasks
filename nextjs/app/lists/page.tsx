@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, FormEvent } from "react";
-import ListDetails from "./ListDetails";
+import ListDetails from "./containers/ListDetails";
 import { WebSocketProvider, useWebSocketContext } from "@/hooks/useWebSocket";
 import { Button } from "@/components/ui/button";
 import {

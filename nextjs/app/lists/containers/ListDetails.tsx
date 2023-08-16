@@ -11,8 +11,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Share } from "./Share";
-import { MessageNewTask, Task, isMessageNewTask } from "./types";
+import { MessageNewTask, Task, isMessageNewTask } from "../types";
 import { fetchWithUserId } from "@/utils/api";
+import ListOfTasks from "../components/ListOfTasks";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -73,11 +74,7 @@ export default function ListDetails({ listId }: { listId: string }) {
           <Share listId={listId} />
         </CardHeader>
         <CardContent>
-          <ul>
-            {tasks.map((task: Task) => (
-              <li key={task.id}>{task.text}</li>
-            ))}
-          </ul>
+          <ListOfTasks tasks={tasks} />
         </CardContent>
         <CardFooter>
           <form onSubmit={handleTaskSubmit}>
