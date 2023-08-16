@@ -12,6 +12,7 @@ import { Label } from "@radix-ui/react-label";
 import { FormEvent, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchWithUserId } from "@/utils/api";
+import { defaultErrorToast } from "@/utils/toasts/errorToast";
 
 export function Share({
   listId,
@@ -47,10 +48,10 @@ export function Share({
             title: "Error!",
             description: "something went wrong, try different username",
           });
-        toast({ title: "Error!", description: "something went wrong" });
+        defaultErrorToast();
       }
     } catch (error) {
-      toast({ title: "Error!", description: "something went wrong" });
+      defaultErrorToast();
     }
   };
 

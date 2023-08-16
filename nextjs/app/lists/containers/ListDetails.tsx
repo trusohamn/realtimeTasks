@@ -14,6 +14,7 @@ import { Share } from "./Share";
 import { MessageNewTask, Task, isMessageNewTask } from "../types";
 import { fetchWithUserId } from "@/utils/api";
 import ListOfTasks from "../components/ListOfTasks";
+import { defaultErrorToast } from "@/utils/toasts/errorToast";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -62,20 +63,23 @@ export default function ListDetails({ listId }: { listId: string }) {
     if (newTaskText.trim() === "") return;
     const username = localStorage.getItem("username");
     const taskId = uuid();
+    try {
+      if (!username) throw new Error("no username!"); // TODO handle error
+      const message: MessageNewTask = {
+        type: "NEW_TASK",
+        data: {
+          task: { id: taskId, text: newTaskText },
+        },
+        listId,
+        username,
+      };
 
-    if (!username) throw new Error("no username!"); // TODO handle error
-    const message: MessageNewTask = {
-      type: "NEW_TASK",
-      data: {
-        task: { id: taskId, text: newTaskText },
-      },
-      listId,
-      username,
-    };
+      sendMessage?.(JSON.stringify(message));
 
-    sendMessage?.(JSON.stringify(message));
-
-    setNewTaskText("");
+      setNewTaskText("");
+    } catch (e) {
+      defaultErrorToast();
+    }
   };
 
   return (
