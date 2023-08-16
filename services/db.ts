@@ -87,7 +87,7 @@ export async function getUsersListIds(userId: string) {
     });
 }
 
-export async function getUsersByListIds(listId: string) {
+export async function getUsersIdByListId(listId: string) {
     return new Promise<{ userId: string }[]>((resolve, reject) => {
         db.all(
             'SELECT userId FROM user_lists WHERE listId = ?',
@@ -100,6 +100,30 @@ export async function getUsersByListIds(listId: string) {
                 }
 
                 resolve(rows);
+            }
+        );
+    });
+}
+
+export async function getUsersByListId(listId: string) {
+    return new Promise<{ userId: string, username: string }[]>((resolve, reject) => {
+        db.all(
+            `
+            SELECT users.id, users.username AS name
+            FROM users
+            JOIN user_lists ON users.id = user_lists.userId
+            WHERE user_lists.listId = ?
+          `,
+            [listId],
+            (err: any, rows: any[]) => {
+                if (err) {
+                    console.log(err);
+                    reject(new Error('Error retrieving users'));
+                    return;
+                }
+                console.log({ rows })
+                const mappedRows = rows.map(({ id, name }) => ({ userId: id, username: name }))
+                resolve(mappedRows);
             }
         );
     });
@@ -172,7 +196,7 @@ export async function getUserByUsername(username: string) {
 
 type Task = { id: string, text: string }
 export async function getListDetails(listId: string) {
-    return new Promise<{ id: string; name: string; tasks: Task[] } | null>((resolve, reject) => {
+    return new Promise<{ id: string; name: string; tasks: Task[], sharedWith: { userId: string, username: string }[] } | null>((resolve, reject) => {
         db.get('SELECT * FROM lists WHERE id = ?', [listId], async (err: any, row: any) => {
             if (err) {
                 console.log(err);
@@ -191,8 +215,9 @@ export async function getListDetails(listId: string) {
             };
 
             const tasks = await getTasksByListId(listId);
+            const sharedWith = await getUsersByListId(listId);
 
-            resolve({ ...list, tasks });
+            resolve({ ...list, tasks, sharedWith });
         });
     });
 }

@@ -1,6 +1,6 @@
 import { useWebSocketContext } from "@/hooks/useWebSocket";
 import { v4 as uuid } from "uuid";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,21 +17,33 @@ import ListOfTasks from "../components/ListOfTasks";
 
 export default function ListDetails({ listId }: { listId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [sharedWith, setSharedWith] = useState<{ username: string }[]>([]);
   const [listName, setListName] = useState<string>("");
   const [newTaskText, setNewTaskText] = useState("");
   const { message, sendMessage } = useWebSocketContext();
 
-  useEffect(() => {
+  const fetchListDetails = useCallback(async () => {
+    const userId = localStorage.getItem("userid");
     fetchWithUserId(`/lists/${listId}`)
       .then((response) => response.json())
       .then((data) => {
+        // TODO add types to response
         setTasks(data.tasks);
         setListName(data.name);
+        setSharedWith(
+          data.sharedWith.filter(
+            (user: { userId: string }) => user.userId !== userId
+          )
+        );
       })
       .catch((error) => {
         console.error("Error fetching list details:", error);
       });
   }, [listId]);
+
+  useEffect(() => {
+    fetchListDetails();
+  }, [fetchListDetails]);
 
   useEffect(() => {
     if (message) {
@@ -48,9 +60,10 @@ export default function ListDetails({ listId }: { listId: string }) {
   const handleTaskSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newTaskText.trim() === "") return;
-    const username = localStorage.getItem("username") ?? "unknown";
+    const username = localStorage.getItem("username");
     const taskId = uuid();
 
+    if (!username) throw new Error("no username!"); // TODO handle error
     const message: MessageNewTask = {
       type: "NEW_TASK",
       data: {
@@ -71,7 +84,12 @@ export default function ListDetails({ listId }: { listId: string }) {
         <CardHeader>
           <CardTitle>{listName}</CardTitle>
           <CardDescription>List ID: {listId}</CardDescription>
-          <Share listId={listId} />
+          <Share listId={listId} onSuccessShare={fetchListDetails} />
+          {Boolean(sharedWith.length) && (
+            <div>
+              shared with: {sharedWith.map(({ username }) => " " + username)}
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <ListOfTasks tasks={tasks} />

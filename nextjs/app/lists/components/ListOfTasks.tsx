@@ -5,10 +5,7 @@ import "../lists.css";
 export default function ListOfTasks({ tasks }: { tasks: Task[] }) {
   return (
     <ul>
-      <TransitionGroup
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={300}
-      >
+      <TransitionGroup>
         {tasks.map((task: Task) => {
           return (
             <CSSTransition key={task.id} timeout={500} classNames="item">

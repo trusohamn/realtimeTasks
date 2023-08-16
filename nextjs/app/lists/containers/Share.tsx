@@ -13,7 +13,13 @@ import { FormEvent, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchWithUserId } from "@/utils/api";
 
-export function Share({ listId }: { listId: string }) {
+export function Share({
+  listId,
+  onSuccessShare,
+}: {
+  listId: string;
+  onSuccessShare: () => Promise<void>;
+}) {
   const [shareWith, setShareWith] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -32,6 +38,7 @@ export function Share({ listId }: { listId: string }) {
       });
 
       if (response.ok) {
+        await onSuccessShare();
         setDialogOpen(false);
         toast({ title: "Success!", description: "shared with " + shareWith });
       } else {
@@ -40,6 +47,7 @@ export function Share({ listId }: { listId: string }) {
             title: "Error!",
             description: "something went wrong, try different username",
           });
+        toast({ title: "Error!", description: "something went wrong" });
       }
     } catch (error) {
       toast({ title: "Error!", description: "something went wrong" });
